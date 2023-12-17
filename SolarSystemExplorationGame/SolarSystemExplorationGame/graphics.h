@@ -50,7 +50,6 @@ class Graphics
     GLint m_positionAttrib;
     GLint m_colorAttrib;
     GLint m_tcAttrib;
-    GLint m_cubeTCAttrib;
     GLint m_hasTexture;
     GLint m_cubeProjectionMatrix;
     GLint m_cubeMVmatrix;

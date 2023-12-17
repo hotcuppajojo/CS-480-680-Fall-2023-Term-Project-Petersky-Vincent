@@ -1,6 +1,6 @@
 #version 460
 
-in vec3 cubeTC;
+in vec3 v_cubeTC;
 
 layout (binding=0) uniform samplerCube samp;
 
@@ -11,5 +11,5 @@ out vec4 fragColor;
 
 void main(void)
 {
-    fragColor = texture(samp, cubeTC);
+    fragColor = texture(samp, v_cubeTC);
 }

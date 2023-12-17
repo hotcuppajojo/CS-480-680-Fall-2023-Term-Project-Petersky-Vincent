@@ -230,7 +230,7 @@ void Graphics::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render Skybox First
-	m_cubemap_shader->Enable();
+	/*m_cubemap_shader->Enable();
 
 	glUniformMatrix4fv(m_cubeProjectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
 	glUniformMatrix4fv(m_cubeMVmatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
@@ -246,7 +246,7 @@ void Graphics::Render()
 		glUniform1i(sampler, 0);
 
 		m_cubemapTex->Render(m_cubePositionAttrib);
-	}
+	}*/
 
 	// Start the correct program
 	m_shader->Enable();
@@ -266,7 +266,7 @@ void Graphics::Render()
 		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_mesh->GetModel()));
 		if (m_mesh->hasTex) {
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, m_skybox->getTextureID());
+			glBindTexture(GL_TEXTURE_2D, m_mesh->getTextureID());
 			GLuint sampler = m_shader->GetUniformLocation("sp");
 			if (sampler == INVALID_UNIFORM_LOCATION)
 			{
@@ -388,14 +388,6 @@ bool Graphics::collectShPrLocs() {
 	if (m_tcAttrib == -1)
 	{
 		printf("v_texcoord attribute not found\n");
-		anyProblem = false;
-	}
-
-	// Locate the cube tc vertex attribute
-	m_cubeTCAttrib = m_shader->GetAttribLocation("v_cubeTC");
-	if (m_cubeTCAttrib == -1)
-	{
-		printf("v_cubeTC attribute not found\n");
 		anyProblem = false;
 	}
 
