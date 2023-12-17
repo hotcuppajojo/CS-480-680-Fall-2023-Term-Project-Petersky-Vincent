@@ -13,6 +13,7 @@ using namespace std;
 #include "object.h"
 #include "sphere.h"
 #include "mesh.h"
+#include "CubemapTexture.h"
 
 #define numVBOs 2;
 #define numIBs 2;
@@ -41,6 +42,7 @@ class Graphics
 
     Camera *m_camera;
     Shader *m_shader;
+    Shader* m_cubemap_shader;
 
     GLint m_projectionMatrix;
     GLint m_viewMatrix;
@@ -49,15 +51,17 @@ class Graphics
     GLint m_colorAttrib;
     GLint m_tcAttrib;
     GLint m_hasTexture;
+    GLint m_cubeProjectionMatrix;
+    GLint m_cubeMVmatrix;
+    GLint m_cubePositionAttrib;
 
+    CubemapTexture* m_cubemapTex;
 
     Sphere* m_sphere;
     Sphere* m_sphere2;
     Sphere* m_sphere3;
 
     Mesh* m_mesh;
-
-
 
 };
 

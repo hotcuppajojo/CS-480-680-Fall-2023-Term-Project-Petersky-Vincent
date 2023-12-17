@@ -15,6 +15,7 @@ class Shader
     bool Initialize();
     void Enable();
     bool AddShader(GLenum ShaderType);
+    bool AddShader(GLenum ShaderType, const char* shaderFPath);
     bool Finalize();
     GLint GetUniformLocation(const char* pUniformName);
     GLint GetAttribLocation(const char* pAttribName);
@@ -23,6 +24,8 @@ class Shader
   private:
     GLuint m_shaderProg;    
     std::vector<GLuint> m_shaderObjList;
+
+    std::string readShaderSource(const char* shaderFPath);
 };
 
 #endif  /* SHADER_H */
