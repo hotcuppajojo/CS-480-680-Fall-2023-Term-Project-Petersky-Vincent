@@ -112,7 +112,7 @@ bool Graphics::Initialize(int width, int height)
 		"assets\\Cubemaps\\skybox2\\cubemapNegY.png",
 		"assets\\Cubemaps\\skybox2\\cubemapPosZ.png",
 		"assets\\Cubemaps\\skybox2\\cubemapNegZ.png");
-	
+
 	// Starship
 	m_mesh = new Mesh(glm::vec3(2.0f, 3.0f, -5.0f), "assets\\SpaceShip-1.obj", "assets\\SpaceShip-1.png");
 

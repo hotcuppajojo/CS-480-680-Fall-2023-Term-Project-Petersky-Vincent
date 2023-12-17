@@ -13,5 +13,6 @@ void main(void)
 {
     cubeTC = position;
     vec4 v = vec4(position, 1.0);
-    gl_Position = (projection * modelView) * v;
+    mat4 modelViewRot = mat4(mat3(modelView));
+    gl_Position = (projection * modelViewRot) * v;
 }

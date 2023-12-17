@@ -12,9 +12,10 @@ CubemapTexture::CubemapTexture()
 CubemapTexture::CubemapTexture(const char* posXfname, const char* negXfname,
 	const char* posYfname, const char* negYfname, const char* posZfname, const char* negZfname)
 {
-	loadTexture(posXfname, negXfname, posYfname, negYfname, 
-		posZfname, negZfname);
-	initializeTexture();
+    if (loadTexture(posXfname, negXfname, posYfname, negYfname, posZfname, negZfname))
+        initializeTexture();
+    else
+        printf("Failed: could not intialize teture");
 
 	setupVertices();
 	setupBuffers();
@@ -50,9 +51,8 @@ void CubemapTexture::Render(GLint cubePosAttribLoc)
     // Set vertex attribute pointers to the load correct data. Update here to load the correct attributes.
     glVertexAttribPointer(cubePosAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureID);
-
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureID);
 
     // Render - disable depth testing prior
     glEnable(GL_CULL_FACE);
@@ -83,7 +83,7 @@ bool CubemapTexture::initializeTexture()
 
 void CubemapTexture::setupVertices()
 {
-	float vPositions[] = {
+	float cubePositions[108] = {
         -1.0f, 1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
         1.0f, -1.0f, -1.0f,
@@ -126,7 +126,7 @@ void CubemapTexture::setupVertices()
         -1.0f, -1.0f, 1.0f,
         1.0f, -1.0f, 1.0f};
 
-    vertexPositions = vPositions;
+    vertexPositions = cubePositions;
 }
 
 void CubemapTexture::setupBuffers()
@@ -135,7 +135,50 @@ void CubemapTexture::setupBuffers()
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
+    float cubePositions[108] = {
+        -1.0f, 1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f,
+
+        -1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f,
+
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f,
+
+        -1.0f, 1.0f, -1.0f,
+        1.0f, 1.0f, -1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f, 1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f };
+
     glGenBuffers(1, &VB);
     glBindBuffer(GL_ARRAY_BUFFER, VB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubePositions), cubePositions, GL_STATIC_DRAW);
 }
