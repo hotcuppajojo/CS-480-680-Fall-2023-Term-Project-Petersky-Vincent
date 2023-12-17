@@ -13,7 +13,7 @@ using namespace std;
 #include "object.h"
 #include "sphere.h"
 #include "mesh.h"
-#include "Skybox.h"
+#include "CubemapTexture.h"
 
 #define numVBOs 2;
 #define numIBs 2;
@@ -36,12 +36,13 @@ class Graphics
     bool collectShPrLocs();
     void ComputeTransforms (double dt, std::vector<float> speed, std::vector<float> dist,
         std::vector<float> rotSpeed, glm::vec3 rotVector, std::vector<float> scale, 
-        glm::mat4& tmat, glm::mat4& rmat, glm::mat4& smat);
+        glm::mat4& tmat, glm::mat4& rmat, glm::mat4& smat); 
 
     stack<glm::mat4> modelStack;
 
     Camera *m_camera;
     Shader *m_shader;
+    Shader* m_cubemap_shader;
 
     GLint m_projectionMatrix;
     GLint m_viewMatrix;
@@ -51,9 +52,11 @@ class Graphics
     GLint m_tcAttrib;
     GLint m_cubeTCAttrib;
     GLint m_hasTexture;
-    GLint m_isCubeMap;
+    GLint m_cubeProjectionMatrix;
+    GLint m_cubeMVmatrix;
+    GLint m_cubePositionAttrib;
 
-    Skybox* m_skybox;
+    CubemapTexture* m_cubemapTex;
 
     Sphere* m_sphere;
     Sphere* m_sphere2;

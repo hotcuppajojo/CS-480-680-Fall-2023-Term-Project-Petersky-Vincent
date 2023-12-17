@@ -52,14 +52,14 @@ bool Graphics::Initialize(int width, int height)
 	}
 
 	// Add the vertex shader
-	if (!m_shader->AddShader(GL_VERTEX_SHADER))
+	if (!m_shader->AddShader(GL_VERTEX_SHADER, "vertex_shader.glsl"))
 	{
 		printf("Vertex Shader failed to Initialize\n");
 		return false;
 	}
 
 	// Add the fragment shader
-	if (!m_shader->AddShader(GL_FRAGMENT_SHADER))
+	if (!m_shader->AddShader(GL_FRAGMENT_SHADER, "fragment_shader.glsl"))
 	{
 		printf("Fragment Shader failed to Initialize\n");
 		return false;
@@ -68,7 +68,35 @@ bool Graphics::Initialize(int width, int height)
 	// Connect the program
 	if (!m_shader->Finalize())
 	{
-		printf("Program to Finalize\n");
+		printf("Program Failed to Finalize\n");
+		return false;
+	}
+
+	m_cubemap_shader = new Shader();
+	if (!m_cubemap_shader->Initialize())
+	{
+		printf("Cubemap Shader Failed to Initialize\n");
+		return false;
+	}
+
+	// Add the Cubemap Vertex Shader
+	if (!m_cubemap_shader->AddShader(GL_VERTEX_SHADER, "vertex_cube_shader.glsl"))
+	{
+		printf("Cubemap Vertex Shader failed to Initialize\n");
+		return false;
+	}
+
+	// Add the Cubemap Fragment Shader
+	if (!m_cubemap_shader->AddShader(GL_FRAGMENT_SHADER, "fragment_cube_shader.glsl"))
+	{
+		printf("Cubemap Vert Shader failed to Initialize\n");
+		return false;
+	}
+
+	// Connect the program
+	if (!m_cubemap_shader->Finalize())
+	{
+		printf("Program Failed to Finalize\n");
 		return false;
 	}
 
@@ -77,15 +105,14 @@ bool Graphics::Initialize(int width, int height)
 		printf("Some shader attribs not located!\n");
 	}
 
-	// Skybox
-	glm::mat4 skyboxModel = glm::mat4(glm::mat3(m_camera->GetView()));
-	m_skybox = new Skybox(skyboxModel, "assets\\Cubemaps\\skybox2\\cubemapPosX.png",
+  // Cubemap
+	m_cubemapTex = new CubemapTexture("assets\\Cubemaps\\skybox2\\cubemapPosX.png",
 		"assets\\Cubemaps\\skybox2\\cubemapNegX.png",
 		"assets\\Cubemaps\\skybox2\\cubemapPosY.png",
 		"assets\\Cubemaps\\skybox2\\cubemapNegY.png",
 		"assets\\Cubemaps\\skybox2\\cubemapPosZ.png",
 		"assets\\Cubemaps\\skybox2\\cubemapNegZ.png");
-	
+
 	// Starship
 	m_mesh = new Mesh(glm::vec3(2.0f, 3.0f, -5.0f), "assets\\SpaceShip-1.obj", "assets\\SpaceShip-1.png");
 
@@ -98,11 +125,13 @@ bool Graphics::Initialize(int width, int height)
 	// The moon
 	m_sphere3 = new Sphere(48, "assets\\2k_moon.jpg");
 
-
 	//enable depth testing
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	
+	// enable seamless texture for cubemap
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	return true;
 }
 
@@ -199,10 +228,28 @@ void Graphics::Render()
 	//glClearColor(0.5, 0.2, 0.2, 1.0);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
+	// Render Skybox First
+	m_cubemap_shader->Enable();
+
+	glUniformMatrix4fv(m_cubeProjectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
+	glUniformMatrix4fv(m_cubeMVmatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
+
+	if (m_cubemapTex != NULL) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemapTex->getTextureID());
+		GLuint sampler = m_cubemap_shader->GetUniformLocation("samp");
+		if (sampler == INVALID_UNIFORM_LOCATION)
+		{
+			printf("Sampler Not found not found\n");
+		}
+		glUniform1i(sampler, 0);
+
+		m_cubemapTex->Render(m_cubePositionAttrib);
+	}
+
 	// Start the correct program
 	m_shader->Enable();
-
 
 	// Send in the projection and view to the shader (stay the same while camera intrinsic(perspective) and extrinsic (view) parameters are the same
 	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
@@ -213,25 +260,6 @@ void Graphics::Render()
 		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->GetModel()));
 		m_cube->Render(m_positionAttrib,m_colorAttrib);
 	}*/
-
-	// Render the skybox first
-	if (m_skybox != NULL) {
-		glUniform1i(m_isCubeMap, true);
-		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_skybox->GetModel()));
-		if (m_skybox->hasTex) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox->getTextureID());
-			GLuint sampler = m_shader->GetUniformLocation("sp");
-			if (sampler == INVALID_UNIFORM_LOCATION)
-			{
-				printf("Sampler Not found not found\n");
-			}
-			glUniform1i(sampler, 0);
-
-			m_skybox->Render(m_cubeTCAttrib, m_isCubeMap);
-		}
-		glUniform1i(m_isCubeMap, false);
-	}
 	
 	if (m_mesh != NULL) {
 		glUniform1i(m_hasTexture, false);
@@ -377,9 +405,25 @@ bool Graphics::collectShPrLocs() {
 		anyProblem = false;
 	}
 
-	m_isCubeMap = m_shader->GetUniformLocation("isCubeMap");
-	if (m_isCubeMap == INVALID_UNIFORM_LOCATION) {
-		printf("isCubeMap uniform not found\n");
+	// Locate the Cube Vertex and Shader attributes
+	m_cubeProjectionMatrix = m_cubemap_shader->GetUniformLocation("projection");
+	if (m_cubeProjectionMatrix == INVALID_UNIFORM_LOCATION)
+	{
+		printf("cubeProjection uniform not found\n");
+		anyProblem = false;
+	}
+
+	m_cubeMVmatrix = m_cubemap_shader->GetUniformLocation("modelView");
+	if (m_cubeMVmatrix == INVALID_UNIFORM_LOCATION)
+	{
+		printf("cubeMV uniform not found\n");
+		anyProblem = false;
+	}
+
+	m_cubePositionAttrib = m_cubemap_shader->GetAttribLocation("position");
+	if (m_cubePositionAttrib == -1)
+	{
+		printf("Cubemap Position Attribute not found\n");
 		anyProblem = false;
 	}
 
@@ -417,4 +461,3 @@ std::string Graphics::ErrorString(GLenum error)
 		return "None";
 	}
 }
-

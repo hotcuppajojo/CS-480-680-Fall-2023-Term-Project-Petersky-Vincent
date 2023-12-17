@@ -1,6 +1,9 @@
 /* Shader Class, Author: Dr. Tavakkoli */
 
 #include "shader.h"
+#include <string>
+#include <fstream>
+#include <iostream>
 
 Shader::Shader()
 {
@@ -39,74 +42,17 @@ bool Shader::AddShader(GLenum ShaderType)
 {
   std::string s;
 
-  if(ShaderType == GL_VERTEX_SHADER)
-  {
-    s = "#version 460\n \
-          \
-          layout (location = 0) in vec3 v_position; \
-          layout (location = 1) in vec3 v_color; \
-          layout (location = 2) in vec2 v_tc;  \
-          layout (location = 3) in vec3 v_cubeTC;   \
-          uniform bool hasTexture;  \
-          uniform bool isCubeMap;   \
-          \
-          smooth out vec3 color; \
-          out vec2 tc;\
-          out vec3 cubeTC; \
-            \
-          layout (binding=0) uniform sampler2D sp; \
-          layout (binding=1) uniform samplerCube skybox; \
-          \
-          uniform mat4 projectionMatrix; \
-          uniform mat4 viewMatrix; \
-          uniform mat4 modelMatrix; \
-          uniform bool hasTC;        \
-          \
-          void main(void) \
-          { \
-            if(isCubeMap)   \
-            {   \
-                cubeTC = v_cubeTC; \
-                gl_Position = (projectionMatrix * viewMatrix) * vec4(v_cubeTC, 1.0);    \
-            } else  \
-            {   \
-                vec4 v = vec4(v_position, 1.0); \
-                gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v; \
-                color = v_color; \
-                tc = v_tc;\
-            }   \
-          } \
-          ";
-  }
-  else if(ShaderType == GL_FRAGMENT_SHADER)
-  {
-    s = "#version 460\n \
-          \
-          smooth in vec3 color;\
-          layout (binding=0) uniform sampler2D sp; \
-          layout (binding=1) uniform samplerCube skybox; \
-          in vec2 tc;\
-          in vec3 cubeTC; \
-          uniform bool hasTexture;  \
-          uniform bool isCubeMap;   \
-          \
-          out vec4 frag_color; \
-          \
-          void main(void) \
-          { \
-             if (isCubeMap){    \
-                frag_color = texture(skybox, cubeTC); \
-             } else if(hasTexture)\
-             { \
-               frag_color = texture(sp,tc);\
-            \
-            } else \
-            {   \
-			   frag_color = vec4(color.rgb, 1.0);\
-            } \
-          } \
-          ";
-  }
+    /* update to shaders to read from files - reference: textbook prog. 2.4 */
+    if (ShaderType == GL_VERTEX_SHADER)
+    {
+        std::string vertexShaderStr = readShaderSource("vertex_shader.glsl");
+        s = vertexShaderStr.c_str();
+    }
+    else if (ShaderType == GL_FRAGMENT_SHADER)
+    {
+        std::string fragmentShaderStr = readShaderSource("fragment_shader.glsl");
+        s = fragmentShaderStr.c_str();
+    }
 
   GLuint ShaderObj = glCreateShader(ShaderType);
 
@@ -143,6 +89,48 @@ bool Shader::AddShader(GLenum ShaderType)
   return true;
 }
 
+// Use this method to add shaders to the program. When finished - call finalize()
+bool Shader::AddShader(GLenum ShaderType, const char* shaderFPath)
+{
+    std::string s;
+
+    std::string shaderStr = readShaderSource(shaderFPath);
+    s = shaderStr.c_str();
+
+    GLuint ShaderObj = glCreateShader(ShaderType);
+
+    if (ShaderObj == 0)
+    {
+        std::cerr << "Error creating shader type " << ShaderType << " with file path: " << shaderFPath << std::endl;
+        return false;
+    }
+
+    // Save the shader object - will be deleted in the destructor
+    m_shaderObjList.push_back(ShaderObj);
+
+    const GLchar* p[1];
+    p[0] = s.c_str();
+    GLint Lengths[1] = { (GLint)s.size() };
+
+    glShaderSource(ShaderObj, 1, p, Lengths);
+
+    glCompileShader(ShaderObj);
+
+    GLint success;
+    glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
+
+    if (!success)
+    {
+        GLchar InfoLog[1024];
+        glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
+        std::cerr << "Error compiling: " << InfoLog << std::endl;
+        return false;
+    }
+
+    glAttachShader(m_shaderProg, ShaderObj);
+
+    return true;
+}
 
 // After all the shaders have been added to the program call this function
 // to link and validate the program.
@@ -158,6 +146,7 @@ bool Shader::Finalize()
   {
     glGetProgramInfoLog(m_shaderProg, sizeof(ErrorLog), NULL, ErrorLog);
     std::cerr << "Error linking shader program: " << ErrorLog << std::endl;
+    printf(ErrorLog);
     return false;
   }
 
@@ -167,6 +156,7 @@ bool Shader::Finalize()
   {
     glGetProgramInfoLog(m_shaderProg, sizeof(ErrorLog), NULL, ErrorLog);
     std::cerr << "Invalid shader program: " << ErrorLog << std::endl;
+    printf(ErrorLog);
     return false;
   }
 
@@ -208,4 +198,23 @@ GLint Shader::GetAttribLocation(const char* pAttribName)
     }
 
     return Location;
+}
+
+/* update to shaders to read from files - reference: textbook prog. 2.4 */
+std::string Shader::readShaderSource(const char* shaderFPath)
+{
+    std::string content;
+
+    std::ifstream fileStream(shaderFPath);
+    std::string line = "";
+
+    while (!fileStream.eof())
+    {
+        std::getline(fileStream, line);
+        content.append(line + '\n');
+    }
+
+    fileStream.close();
+
+    return content;
 }
