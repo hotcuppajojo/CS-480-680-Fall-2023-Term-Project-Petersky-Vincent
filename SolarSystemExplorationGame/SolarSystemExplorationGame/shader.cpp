@@ -46,12 +46,16 @@ bool Shader::AddShader(GLenum ShaderType)
           layout (location = 0) in vec3 v_position; \
           layout (location = 1) in vec3 v_color; \
           layout (location = 2) in vec2 v_tc;  \
-          uniform bool hasTexture;\
+          layout (location = 3) in vec3 v_cubeTC;   \
+          uniform bool hasTexture;  \
+          uniform bool isCubeMap;   \
           \
           smooth out vec3 color; \
           out vec2 tc;\
+          out vec3 cubeTC; \
             \
           layout (binding=0) uniform sampler2D sp; \
+          layout (binding=1) uniform samplerCube skybox; \
           \
           uniform mat4 projectionMatrix; \
           uniform mat4 viewMatrix; \
@@ -60,10 +64,17 @@ bool Shader::AddShader(GLenum ShaderType)
           \
           void main(void) \
           { \
-            vec4 v = vec4(v_position, 1.0); \
-            gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v; \
-            color = v_color; \
-            tc = v_tc;\
+            if(isCubeMap)   \
+            {   \
+                cubeTC = v_cubeTC; \
+                gl_Position = (projectionMatrix * viewMatrix) * vec4(v_cubeTC, 1.0);    \
+            } else  \
+            {   \
+                vec4 v = vec4(v_position, 1.0); \
+                gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v; \
+                color = v_color; \
+                tc = v_tc;\
+            }   \
           } \
           ";
   }
@@ -73,18 +84,26 @@ bool Shader::AddShader(GLenum ShaderType)
           \
           smooth in vec3 color;\
           layout (binding=0) uniform sampler2D sp; \
+          layout (binding=1) uniform samplerCube skybox; \
           in vec2 tc;\
-          uniform bool hasTexture;\
+          in vec3 cubeTC; \
+          uniform bool hasTexture;  \
+          uniform bool isCubeMap;   \
           \
           out vec4 frag_color; \
           \
           void main(void) \
           { \
-             if(hasTexture)\
+             if (isCubeMap){    \
+                frag_color = texture(skybox, cubeTC); \
+             } else if(hasTexture)\
+             { \
                frag_color = texture(sp,tc);\
             \
-            else \
+            } else \
+            {   \
 			   frag_color = vec4(color.rgb, 1.0);\
+            } \
           } \
           ";
   }

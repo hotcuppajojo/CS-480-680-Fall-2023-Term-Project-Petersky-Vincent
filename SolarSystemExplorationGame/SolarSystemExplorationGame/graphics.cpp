@@ -76,6 +76,15 @@ bool Graphics::Initialize(int width, int height)
 	if (!collectShPrLocs()) {
 		printf("Some shader attribs not located!\n");
 	}
+
+	// Skybox
+	glm::mat4 skyboxModel = glm::mat4(glm::mat3(m_camera->GetView()));
+	m_skybox = new Skybox(skyboxModel, "assets\\Cubemaps\\skybox2\\cubemapPosX.png",
+		"assets\\Cubemaps\\skybox2\\cubemapNegX.png",
+		"assets\\Cubemaps\\skybox2\\cubemapPosY.png",
+		"assets\\Cubemaps\\skybox2\\cubemapNegY.png",
+		"assets\\Cubemaps\\skybox2\\cubemapPosZ.png",
+		"assets\\Cubemaps\\skybox2\\cubemapNegZ.png");
 	
 	// Starship
 	m_mesh = new Mesh(glm::vec3(2.0f, 3.0f, -5.0f), "assets\\SpaceShip-1.obj", "assets\\SpaceShip-1.png");
@@ -190,7 +199,7 @@ void Graphics::Render()
 	//glClearColor(0.5, 0.2, 0.2, 1.0);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	// Start the correct program
 	m_shader->Enable();
 
@@ -204,13 +213,32 @@ void Graphics::Render()
 		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->GetModel()));
 		m_cube->Render(m_positionAttrib,m_colorAttrib);
 	}*/
+
+	// Render the skybox first
+	if (m_skybox != NULL) {
+		glUniform1i(m_isCubeMap, true);
+		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_skybox->GetModel()));
+		if (m_skybox->hasTex) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox->getTextureID());
+			GLuint sampler = m_shader->GetUniformLocation("sp");
+			if (sampler == INVALID_UNIFORM_LOCATION)
+			{
+				printf("Sampler Not found not found\n");
+			}
+			glUniform1i(sampler, 0);
+
+			m_skybox->Render(m_cubeTCAttrib, m_isCubeMap);
+		}
+		glUniform1i(m_isCubeMap, false);
+	}
 	
 	if (m_mesh != NULL) {
 		glUniform1i(m_hasTexture, false);
 		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_mesh->GetModel()));
 		if (m_mesh->hasTex) {
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, m_sphere->getTextureID());
+			glBindTexture(GL_TEXTURE_2D, m_skybox->getTextureID());
 			GLuint sampler = m_shader->GetUniformLocation("sp");
 			if (sampler == INVALID_UNIFORM_LOCATION)
 			{
@@ -327,7 +355,7 @@ bool Graphics::collectShPrLocs() {
 		anyProblem = false;
 	}
 
-	// Locate the color vertex attribute
+	// Locate the tc vertex attribute
 	m_tcAttrib = m_shader->GetAttribLocation("v_tc");
 	if (m_tcAttrib == -1)
 	{
@@ -335,9 +363,23 @@ bool Graphics::collectShPrLocs() {
 		anyProblem = false;
 	}
 
+	// Locate the cube tc vertex attribute
+	m_cubeTCAttrib = m_shader->GetAttribLocation("v_cubeTC");
+	if (m_cubeTCAttrib == -1)
+	{
+		printf("v_cubeTC attribute not found\n");
+		anyProblem = false;
+	}
+
 	m_hasTexture = m_shader->GetUniformLocation("hasTexture");
 	if (m_hasTexture == INVALID_UNIFORM_LOCATION) {
 		printf("hasTexture uniform not found\n");
+		anyProblem = false;
+	}
+
+	m_isCubeMap = m_shader->GetUniformLocation("isCubeMap");
+	if (m_isCubeMap == INVALID_UNIFORM_LOCATION) {
+		printf("isCubeMap uniform not found\n");
 		anyProblem = false;
 	}
 

@@ -13,6 +13,7 @@ using namespace std;
 #include "object.h"
 #include "sphere.h"
 #include "mesh.h"
+#include "Skybox.h"
 
 #define numVBOs 2;
 #define numIBs 2;
@@ -48,16 +49,17 @@ class Graphics
     GLint m_positionAttrib;
     GLint m_colorAttrib;
     GLint m_tcAttrib;
+    GLint m_cubeTCAttrib;
     GLint m_hasTexture;
+    GLint m_isCubeMap;
 
+    Skybox* m_skybox;
 
     Sphere* m_sphere;
     Sphere* m_sphere2;
     Sphere* m_sphere3;
 
     Mesh* m_mesh;
-
-
 
 };
 
