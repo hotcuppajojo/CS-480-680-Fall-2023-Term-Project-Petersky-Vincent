@@ -203,4 +203,6 @@ bool Mesh::loadModelFromFile(const char* path) {
 	for (int i = 0; i < Vertices.size(); i++) {
 		Indices.push_back(i);
 	}
+
+	return true;
 }

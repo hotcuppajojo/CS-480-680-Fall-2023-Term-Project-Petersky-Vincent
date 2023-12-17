@@ -105,7 +105,7 @@ bool Graphics::Initialize(int width, int height)
 		printf("Some shader attribs not located!\n");
 	}
 
-	// CubeMap
+  // Cubemap
 	m_cubemapTex = new CubemapTexture("assets\\Cubemaps\\skybox2\\cubemapPosX.png",
 		"assets\\Cubemaps\\skybox2\\cubemapNegX.png",
 		"assets\\Cubemaps\\skybox2\\cubemapPosY.png",
@@ -266,7 +266,7 @@ void Graphics::Render()
 		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_mesh->GetModel()));
 		if (m_mesh->hasTex) {
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, m_sphere->getTextureID());
+			glBindTexture(GL_TEXTURE_2D, m_skybox->getTextureID());
 			GLuint sampler = m_shader->GetUniformLocation("sp");
 			if (sampler == INVALID_UNIFORM_LOCATION)
 			{
@@ -383,11 +383,19 @@ bool Graphics::collectShPrLocs() {
 		anyProblem = false;
 	}
 
-	// Locate the color vertex attribute
+	// Locate the tc vertex attribute
 	m_tcAttrib = m_shader->GetAttribLocation("v_tc");
 	if (m_tcAttrib == -1)
 	{
 		printf("v_texcoord attribute not found\n");
+		anyProblem = false;
+	}
+
+	// Locate the cube tc vertex attribute
+	m_cubeTCAttrib = m_shader->GetAttribLocation("v_cubeTC");
+	if (m_cubeTCAttrib == -1)
+	{
+		printf("v_cubeTC attribute not found\n");
 		anyProblem = false;
 	}
 

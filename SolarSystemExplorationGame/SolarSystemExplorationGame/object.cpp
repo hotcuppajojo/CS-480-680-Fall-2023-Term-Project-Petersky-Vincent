@@ -57,7 +57,7 @@ void Object::Render(GLint posAttribLoc, GLint colAttribLoc)
 
 	glBindVertexArray(vao);
 
-	// Enable vertex attibute arrays for each vertex attrib
+	// Enable vertex attribute arrays for each vertex attrib
 	glEnableVertexAttribArray(posAttribLoc);
 	glEnableVertexAttribArray(colAttribLoc);
 

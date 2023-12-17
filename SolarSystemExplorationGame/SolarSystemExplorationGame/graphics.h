@@ -36,7 +36,7 @@ class Graphics
     bool collectShPrLocs();
     void ComputeTransforms (double dt, std::vector<float> speed, std::vector<float> dist,
         std::vector<float> rotSpeed, glm::vec3 rotVector, std::vector<float> scale, 
-        glm::mat4& tmat, glm::mat4& rmat, glm::mat4& smat);
+        glm::mat4& tmat, glm::mat4& rmat, glm::mat4& smat); 
 
     stack<glm::mat4> modelStack;
 
@@ -50,6 +50,7 @@ class Graphics
     GLint m_positionAttrib;
     GLint m_colorAttrib;
     GLint m_tcAttrib;
+    GLint m_cubeTCAttrib;
     GLint m_hasTexture;
     GLint m_cubeProjectionMatrix;
     GLint m_cubeMVmatrix;
