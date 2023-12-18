@@ -28,7 +28,6 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 uniform mat3 normMatrix;
-uniform bool hasTC;
 
 uniform vec4 GlobalAmbient;
 uniform PositionalLight light;

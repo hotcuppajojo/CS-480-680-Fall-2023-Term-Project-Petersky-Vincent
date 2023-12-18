@@ -70,9 +70,9 @@ class Graphics
     GLint m_lightTCAttrib;
 
     GLint globalAmbLoc;
-    GLint lightLoc;
-    GLint lightDLoc;
-    GLint lightSLoc;
+    GLint ambLoc;
+    GLint diffLoc;
+    GLint specLoc;
     GLint lightPosLoc;
 
     GLint mAmbLoc;
@@ -89,7 +89,6 @@ class Graphics
     Mesh* m_mesh;
 
     Light* m_sunlight;
-
 };
 
 #endif /* GRAPHICS_H */

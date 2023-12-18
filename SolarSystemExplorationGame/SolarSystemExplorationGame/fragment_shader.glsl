@@ -29,7 +29,6 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 uniform mat3 normMatrix;
-uniform bool hasTC;
 
 smooth in vec3 color;
 in vec3 varNorm;

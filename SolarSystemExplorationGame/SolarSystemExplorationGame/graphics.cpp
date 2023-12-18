@@ -163,18 +163,14 @@ bool Graphics::Initialize(int width, int height)
 	std::vector<float> globalAmbLight = { 0.2f, 0.2f, 0.2f, 1.0f};
 
 	// Sunlight Parameters
-	std::vector<float> sunAmbLight = { 0.5f, 0.5f, 0.5f, 1.0f };
+	std::vector<float> sunAmbLight = { 0.9f, 0.9f, 0.9f, 1.0f };
 	std::vector<float> sunDiffLight = { 0.8f, 0.8f, 0.8f, 1.0f };
 	std::vector<float> sunSpecLight = { 0.5f, 0.5f, 0.5f, 1.0f };
 
 	glm::vec3 sunPosition = { 0, 0, 0 };
 
-	m_sunlight = new Light(GL_LIGHT0, m_camera->GetView(), sunPosition, globalAmbLight,
+	m_sunlight = new Light(m_camera->GetView(), sunPosition, globalAmbLight,
 		sunAmbLight, sunDiffLight, sunSpecLight);
-
-	// enable lighting
-	//glEnable(GL_LIGHTING);
-	//m_sunlight->Init();
 
 	//enable depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -373,17 +369,23 @@ void Graphics::Render()
 	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
 	glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
 
+	std::vector<float> globalAmbientLight = { 0.2, 0.2, 0.2, 0.2 };
+	glUniform4fv(globalAmbLoc, 1, globalAmbientLight.data());
+
+	m_sunlight->Enable(ambLoc, diffLoc, specLoc, lightPosLoc);
 
 	if (m_mercury != NULL) {
 		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_mercury->GetModel()));
 		glUniformMatrix3fv(m_normMatrix, 1, GL_FALSE, 
 			glm::value_ptr(glm::transpose(glm::inverse(glm::mat3(m_camera->GetView() * m_mercury->GetModel())))));
 		
+		//m_mercury->setMaterialProperties({ 1.0, 1.0, 1.0, 1.0 }, { 1.0, 1.0, 1.0, 1.0 }, { 1.0, 1.0, 1.0, 1.0 }, 50.0);
+
 		glUniform4fv(mAmbLoc, 1, (m_sun->matAmbient.data()));
 		glUniform4fv(mDiffLoc, 1, (m_sun->matDiff.data()));
 		glUniform4fv(mSpecLoc, 1,  (m_sun->matSpec.data()));
 		glUniform1f(mShineLoc, (m_sun->matShininess));
-		
+
 		if (m_mercury->hasTex) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m_mercury->getTextureID("IMG_TEXTURE"));
@@ -393,8 +395,12 @@ void Graphics::Render()
 				printf("Sampler Not found not found\n");
 			}
 			glUniform1i(sampler, 0);
-			glUniform1i(m_hasNormal, false);
+			glUniform1i(m_hasTexture, true);
 		}
+		else {
+			glUniform1i(m_hasTexture, false);
+		}
+
 		if (m_mercury->hasNorm) {
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, m_mercury->getTextureID("NORMAL_TEXTURE"));
@@ -405,6 +411,9 @@ void Graphics::Render()
 			}
 			glUniform1i(sampler, 0);
 			glUniform1i(m_hasNormal, true);
+		}
+		else {
+			glUniform1i(m_hasNormal, false);
 		}
 
 		m_mercury->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
@@ -601,22 +610,22 @@ bool Graphics::collectShPrLocs() {
 		anyProblem = false;
 	}
 
-	lightLoc = m_shader->GetUniformLocation("light.ambient");
-	if (lightLoc == INVALID_UNIFORM_LOCATION)
+	ambLoc = m_shader->GetUniformLocation("light.ambient");
+	if (ambLoc == INVALID_UNIFORM_LOCATION)
 	{
 		printf("Ambient light location uniform not found\n");
 		anyProblem = false;
 	}
 
-	lightDLoc = m_shader->GetUniformLocation("light.diffuse");
-	if (lightDLoc == INVALID_UNIFORM_LOCATION)
+	diffLoc = m_shader->GetUniformLocation("light.diffuse");
+	if (diffLoc == INVALID_UNIFORM_LOCATION)
 	{
 		printf("Diffuse light location uniform not found\n");
 		anyProblem = false;
 	}
 
-	lightSLoc = m_shader->GetUniformLocation("light.spec");
-	if (lightSLoc == INVALID_UNIFORM_LOCATION)
+	specLoc = m_shader->GetUniformLocation("light.spec");
+	if (specLoc == INVALID_UNIFORM_LOCATION)
 	{
 		printf("Specular light location uniform not found\n");
 		anyProblem = false;

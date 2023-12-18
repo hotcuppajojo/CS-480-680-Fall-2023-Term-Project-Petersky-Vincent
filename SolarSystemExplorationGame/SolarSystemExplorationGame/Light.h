@@ -5,15 +5,13 @@ class Light
 {
 public:
 	Light();
-	Light(GLenum lightN, glm::mat4 viewMatrix, glm::vec3 lightPos);
-	Light(GLenum lightN, glm::mat4 viewMatrix, glm::vec3 lightPos, std::vector<float> gAmb, 
+	Light(glm::mat4 viewMatrix, glm::vec3 lightPos);
+	Light(glm::mat4 viewMatrix, glm::vec3 lightPos, std::vector<float> gAmb, 
 	std::vector<float> lightAmb, std::vector<float> lightDiff, std::vector<float> lightSpec);
 
-	void Init();
+	void Enable(GLint ambLoc, GLint diffLoc, GLint specLoc, GLint lightPosLoc);
 
 private:
-	GLenum lightNum;
-
 	std::vector<float> m_globalAmbient;
 	std::vector<float> m_lightAmbient;
 	std::vector<float> m_lightDiffuse;
