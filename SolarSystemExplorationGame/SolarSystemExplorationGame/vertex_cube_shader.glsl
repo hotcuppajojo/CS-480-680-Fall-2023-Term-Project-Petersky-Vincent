@@ -1,6 +1,6 @@
 #version 460
 
-layout (location = 0) in vec3 position;
+layout (location = 0) in vec3 cubePosition;
 
 out vec3 v_cubeTC;
 
@@ -11,8 +11,8 @@ uniform mat4 modelView;
 
 void main(void)
 {
-    v_cubeTC = position;
-    vec4 v = vec4(position, 1.0);
+    v_cubeTC = cubePosition;
+    vec4 v = vec4(cubePosition, 1.0);
     mat4 modelViewRot = mat4(mat3(modelView));
     gl_Position = (projection * modelViewRot) * v;
 }

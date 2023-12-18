@@ -14,6 +14,7 @@ using namespace std;
 #include "sphere.h"
 #include "mesh.h"
 #include "CubemapTexture.h"
+#include "Light.h"
 
 #define numVBOs 2;
 #define numIBs 2;
@@ -43,25 +44,51 @@ class Graphics
     Camera *m_camera;
     Shader *m_shader;
     Shader* m_cubemap_shader;
+    Shader* m_light_shader;
 
     GLint m_projectionMatrix;
     GLint m_viewMatrix;
     GLint m_modelMatrix;
+    GLint m_normMatrix;
     GLint m_positionAttrib;
     GLint m_colorAttrib;
     GLint m_tcAttrib;
+
     GLint m_hasTexture;
+    GLint m_hasNormal;
+
     GLint m_cubeProjectionMatrix;
     GLint m_cubeMVmatrix;
     GLint m_cubePositionAttrib;
 
+    GLint m_lightProjectionMatrix;
+    GLint m_lightViewMatrix;
+    GLint m_lightModelMatrix;
+    GLint m_lightHasTexture;
+    GLint m_lightPositionAttrib;
+    GLint m_lightColorAttrib;
+    GLint m_lightTCAttrib;
+
+    GLint globalAmbLoc;
+    GLint lightLoc;
+    GLint lightDLoc;
+    GLint lightSLoc;
+    GLint lightPosLoc;
+
+    GLint mAmbLoc;
+    GLint mDiffLoc;
+    GLint mSpecLoc;
+    GLint mShineLoc;
+
     CubemapTexture* m_cubemapTex;
 
-    Sphere* m_sphere;
-    Sphere* m_sphere2;
-    Sphere* m_sphere3;
+    Sphere* m_sun;
+    Sphere* m_mercury;
+    Sphere* m_moon;
 
     Mesh* m_mesh;
+
+    Light* m_sunlight;
 
 };
 
