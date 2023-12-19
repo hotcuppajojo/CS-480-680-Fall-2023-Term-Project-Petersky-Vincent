@@ -8,6 +8,18 @@ CubemapTexture::CubemapTexture()
     setupVertices();
 }
 
+CubemapTexture::CubemapTexture(const char* fname)
+{
+    if (!loadTexture(fname))
+        printf("Failed: could not load cubemap teture\n");
+
+    if (!initializeTexture())
+        printf("Failed: could not initialize cubemap texture!\n");
+
+    setupVertices();
+    setupBuffers();
+}
+
 CubemapTexture::CubemapTexture(const char* posXfname, const char* negXfname,
 	const char* posYfname, const char* negYfname, const char* posZfname, const char* negZfname)
 {
@@ -34,6 +46,17 @@ bool CubemapTexture::loadTexture(const char* posXfname, const char* negXfname,
 	return true;
 }
 
+bool CubemapTexture::loadTexture(const char* fname)
+{
+    m_TextureID = SOIL_load_OGL_single_cubemap(fname, "ESWNUD", SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
+
+    if (!m_TextureID) {
+        printf("Failed: Could not open cubemap single texture file!\n");
+        return false;
+    }
+    return true;
+}
+
 void CubemapTexture::Update(glm::mat4 cubeModelView)
 {
 	modelView = cubeModelView;
@@ -58,7 +81,7 @@ void CubemapTexture::Render(GLint cubePosAttribLoc)
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
     glDisable(GL_DEPTH_TEST);
-    glDrawElements(GL_TRIANGLES, sizeof(vertexPositions), GL_FLOAT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 108 * sizeof(float));
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 

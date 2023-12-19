@@ -7,6 +7,7 @@ class CubemapTexture
 {
 public:
 	CubemapTexture();
+	CubemapTexture(const char* fname);
 	CubemapTexture(const char* posXfname, const char* negXfname,
 		const char* posYfname, const char* negYfname,
 		const char* posZfname, const char* negZfname);
@@ -14,6 +15,8 @@ public:
 	bool loadTexture(const char* posXfname, const char* negXfname,
 		const char* posYfname, const char* negYfname,
 		const char* posZfname, const char* negZfname);
+
+	bool loadTexture(const char* fname);
 
 	void Update(glm::mat4 cubeModelView);
 	void Render(GLint cubePosAttribLoc);

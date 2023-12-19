@@ -139,6 +139,8 @@ bool Graphics::Initialize(int width, int height)
 		"assets\\Cubemaps\\skybox2\\cubemapPosZ.png",
 		"assets\\Cubemaps\\skybox2\\cubemapNegZ.png");
 
+	//m_cubemapTex = new CubemapTexture("assets\\Cubemaps\\Galaxy.jpg");
+
 	// Starship
 	// m_mesh = new Mesh(glm::vec3(2.0f, 3.0f, -5.0f), "assets\\SpaceShip-1.obj", "assets\\SpaceShip-1.png");
 
@@ -183,7 +185,7 @@ bool Graphics::Initialize(int width, int height)
 
 	// Saturn
 	m_saturn = new Sphere(48, "assets\\PlanetaryTextures\\Saturn.jpg", "IMG_TEXTURE");
-	loadNorm = m_saturn->loadTexture("assets\\PlanetaryTextures\\Saturn-n.jpg", "NORMAL_TEXTURE");
+	//loadNorm = m_saturn->loadTexture("assets\\PlanetaryTextures\\Saturn-n.jpg", "NORMAL_TEXTURE");
 
 	if (!loadNorm) {
 		printf("failed to load saturn normal texture\n");
@@ -454,7 +456,7 @@ void Graphics::Render()
 	glUniformMatrix4fv(m_cubeProjectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
 	glUniformMatrix4fv(m_cubeMVmatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
 
-	/*if (m_cubemapTex != NULL) {
+	if (m_cubemapTex != NULL) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemapTex->getTextureID());
 		GLuint sampler = m_cubemap_shader->GetUniformLocation("samp");
@@ -465,7 +467,7 @@ void Graphics::Render()
 		glUniform1i(sampler, 0);
 
 		m_cubemapTex->Render(m_cubePositionAttrib);
-	}*/
+	}
 
 	// Render the objects
 	/*if (m_cube != NULL){
