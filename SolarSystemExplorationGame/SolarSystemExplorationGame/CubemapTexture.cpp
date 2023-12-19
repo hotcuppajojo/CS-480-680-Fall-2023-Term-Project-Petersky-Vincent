@@ -3,19 +3,19 @@
 CubemapTexture::CubemapTexture()
 {
 	m_TextureID = -1;
-	printf("No Cubemap Texture Data Provided");
+	printf("No Cubemap Texture Data Provided\n");
 
     setupVertices();
-    setupBuffers();
 }
 
 CubemapTexture::CubemapTexture(const char* posXfname, const char* negXfname,
 	const char* posYfname, const char* negYfname, const char* posZfname, const char* negZfname)
 {
-    if (loadTexture(posXfname, negXfname, posYfname, negYfname, posZfname, negZfname))
-        initializeTexture();
-    else
-        printf("Failed: could not intialize teture");
+    if (!loadTexture(posXfname, negXfname, posYfname, negYfname, posZfname, negZfname))
+        printf("Failed: could not load cubemap teture\n");
+
+    if (!initializeTexture())
+        printf("Failed: could not initialize cubemap texture!\n");
 
 	setupVertices();
 	setupBuffers();

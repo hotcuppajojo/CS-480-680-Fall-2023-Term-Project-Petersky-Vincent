@@ -83,7 +83,16 @@ class Graphics
     CubemapTexture* m_cubemapTex;
 
     Sphere* m_sun;
+
     Sphere* m_mercury;
+    Sphere* m_venus;
+    Sphere* m_earth;
+    Sphere* m_mars;
+    Sphere* m_jupiter;
+    Sphere* m_saturn;
+    Sphere* m_uranus;
+    Sphere* m_neptune;
+
     Sphere* m_moon;
 
     Mesh* m_mesh;
