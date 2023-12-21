@@ -35,7 +35,7 @@ private:
     bool m_FULLSCREEN;
 
     Graphics* m_graphics;  // Pointer to the Graphics class
-    float fixedOffset;  // Fixed offset for the camera
+    float fixedOffset = 20.0;  // Fixed offset for the camera
     bool m_running;
 };
 
