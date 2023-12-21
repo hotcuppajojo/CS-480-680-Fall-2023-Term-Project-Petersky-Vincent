@@ -39,6 +39,12 @@ class Graphics
         std::vector<float> rotSpeed, glm::vec3 rotVector, std::vector<float> scale, 
         glm::mat4& tmat, glm::mat4& rmat, glm::mat4& smat); 
 
+    
+    glm::vec3 sunPosition;
+    glm::vec4 sunAmbient;
+    glm::vec4 sunDiffuse;
+    glm::vec4 sunSpecular;
+
     stack<glm::mat4> modelStack;
 
     Camera *m_camera;
@@ -80,6 +86,8 @@ class Graphics
     GLint mSpecLoc;
     GLint mShineLoc;
 
+    std::vector<GLint> ambientLocs, diffuseLocs, specularLocs, positionLocs;
+
     CubemapTexture* m_cubemapTex;
 
     Sphere* m_sun;
@@ -98,6 +106,9 @@ class Graphics
     Mesh* m_mesh;
 
     Light* m_sunlight;
+
+    std::unique_ptr<Light> m_lightManager;
+
 };
 
 #endif /* GRAPHICS_H */

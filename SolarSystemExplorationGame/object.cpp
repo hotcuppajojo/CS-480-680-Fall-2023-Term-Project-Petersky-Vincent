@@ -23,7 +23,7 @@ Object::Object(glm::vec3 pivot)
 {
 	// Vertex Set Up
 	setupVerticies();
-	
+
 	// Model Set Up
 	angle = 0.0f;
 	pivotLocation = pivot;

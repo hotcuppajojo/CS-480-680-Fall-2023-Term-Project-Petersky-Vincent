@@ -8,7 +8,7 @@
 
 class Object
 {
-  public:
+public:
     Object();
     Object(glm::vec3 pivot);
 
@@ -21,7 +21,7 @@ class Object
     bool InitBuffers();
     void setupVerticies();
 
-  private:
+private:
     glm::vec3 pivotLocation;
     glm::mat4 model;
     std::vector<Vertex> Vertices;

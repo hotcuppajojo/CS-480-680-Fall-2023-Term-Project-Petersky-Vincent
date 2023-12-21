@@ -2,9 +2,8 @@
 
 #include "graphics.h"
 
-Graphics::Graphics()
-{
-
+Graphics::Graphics() {
+	m_lightManager = std::make_unique<Light>();
 }
 
 Graphics::~Graphics()
@@ -219,19 +218,18 @@ bool Graphics::Initialize(int width, int height)
 		return false;
 	}
 
-	// Set up lighting
+	// Clear existing lights
+	m_lightManager->ClearLights();
 
-	std::vector<float> globalAmbLight = { 0.1f, 0.1f, 0.1f, 1.0f};
+	// Set up global ambient light
+	glm::vec4 globalAmbient = glm::vec4(0.01f, 0.01f, 0.01f, 0.01f); // Adjust as needed
+	m_lightManager->SetGlobalAmbient(globalAmbient);
 
-	// Sunlight Parameters
-	std::vector<float> sunAmbLight = { 1.0f, 1.0f, 1.0f, 1.0f };
-	std::vector<float> sunDiffLight = { 1.0f, 1.0f, 1.0f, 1.0f };
-	std::vector<float> sunSpecLight = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-	glm::vec3 sunPosition = { 0.0f, 0.0f, 0.0f };
-
-	m_sunlight = new Light(m_camera->GetView(), sunPosition, globalAmbLight,
-		sunAmbLight, sunDiffLight, sunSpecLight);
+	sunPosition = { 0.0f, 0.0f, 0.0f };
+	sunAmbient = { 0.3f, 0.3f, 0.3f, 0.3f };
+	sunDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+	sunSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_lightManager->AddLight(m_camera->GetView(), sunPosition, sunAmbient, sunDiffuse, sunSpecular);
 
 	//enable depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -446,7 +444,7 @@ void Graphics::ComputeTransforms(double dt, std::vector<float> speed, std::vecto
 void Graphics::Render()
 {
 	//clear the screen
-	//glClearColor(0.5, 0.2, 0.2, 1.0);
+	
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -469,84 +467,45 @@ void Graphics::Render()
 		m_cubemapTex->Render(m_cubePositionAttrib);
 	}
 
-	// Render the objects
-	/*if (m_cube != NULL){
-		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->GetModel()));
-		m_cube->Render(m_positionAttrib,m_colorAttrib);
-	}*/
-	
-	/*if (m_mesh != NULL) {
-		glUniform1i(m_hasTexture, false);
-		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_mesh->GetModel()));
-		if (m_mesh->hasTex) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, m_mesh->getTextureID());
-			GLuint sampler = m_shader->GetUniformLocation("sp");
-			if (sampler == INVALID_UNIFORM_LOCATION)
-			{
-				printf("Sampler Not found not found\n");
-			}
-			glUniform1i(sampler, 0);
-			m_mesh->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture);
-		}
-	}*/
+	// Render objects with the standard shader (planets, etc.)
+	m_shader->Enable();
 
-	/*if (m_pyramid != NULL) {
-		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_pyramid->GetModel()));
-		m_pyramid->Render(m_positionAttrib, m_colorAttrib);
-	}*/
+	// Set the projection and view uniform variables
+	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
+	glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
 
+	// Set lights in the shader for standard objects
+	GLint numLightsLoc = m_shader->GetUniformLocation("numLights");
+	GLint lightsLoc = m_shader->GetUniformLocation("lights");
+	GLint globalAmbientLoc = m_shader->GetUniformLocation("globalAmbient");
 
-	// Start the correct program
-	m_light_shader->Enable();
+	m_lightManager->Enable(numLightsLoc, lightsLoc, globalAmbientLoc);
 
-	// Send in the projection and view to the shader (stay the same while camera intrinsic(perspective) and extrinsic (view) parameters are the same
-	glUniformMatrix4fv(m_lightProjectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
-	glUniformMatrix4fv(m_lightViewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
-
-
+	// Rendering the sun
 	if (m_sun != NULL) {
-		glUniformMatrix4fv(m_lightModelMatrix, 1, GL_FALSE, glm::value_ptr(m_sun->GetModel()));
+		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_sun->GetModel()));
+
+		// As the sun is a light source, we don't need its normal matrix for lighting calculations
+		glUniform1i(m_hasNormal, false);
 
 		if (m_sun->hasTex) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m_sun->getTextureID("IMG_TEXTURE"));
-			GLuint sampler = m_light_shader->GetUniformLocation("sampler");
-			if (sampler == INVALID_UNIFORM_LOCATION)
-			{
-				printf("Sampler Not found not found\n");
+			GLuint sampler = m_shader->GetUniformLocation("sampler");
+			if (sampler != INVALID_UNIFORM_LOCATION) {
+				glUniform1i(sampler, 0);
+				glUniform1i(m_hasTexture, true);
 			}
-			glUniform1i(sampler, 0);
-			glUniform1i(m_lightHasTexture, true);
+			else {
+				printf("Sampler Not found\n");
+			}
 		}
-		/*if (m_sun->hasNorm) {
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m_sun->getTextureID("NORMAL_TEXTURE"));
-			GLuint sampler = m_shader->GetUniformLocation("sampler1");
-			if (sampler == INVALID_UNIFORM_LOCATION)
-			{
-				printf("Sampler Not found not found\n");
-			}
-			glUniform1i(sampler, 0);
-			glUniform1i(m_hasNormal, true);
-		}*/
+		else {
+			glUniform1i(m_hasTexture, false);
+		}
 
-		m_sun->Render(m_lightPositionAttrib, m_lightColorAttrib, m_lightTCAttrib, m_lightHasTexture);
+		m_sun->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture);
 	}
-	
-
-	// Start the correct program
-	m_shader->Enable();
-
-	// Send in the projection and view to the shader (stay the same while camera intrinsic(perspective) and extrinsic (view) parameters are the same
-	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
-	glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
-
-	std::vector<float> globalAmbientLight = { 0.2, 0.2, 0.2, 0.2 };
-	glUniform4fv(globalAmbLoc, 1, globalAmbientLight.data());
-
-	// set sunlight uniform variables
-	m_sunlight->Enable(ambLoc, diffLoc, specLoc, lightPosLoc);
 
 	// Render mercury
 	if (m_mercury != NULL) {
@@ -972,7 +931,6 @@ void Graphics::Render()
 	}
 }
 
-
 bool Graphics::collectShPrLocs() {
 	bool anyProblem = true;
 
@@ -1182,35 +1140,35 @@ bool Graphics::collectShPrLocs() {
 
 	return anyProblem;
 }
-
-std::string Graphics::ErrorString(GLenum error)
-{
-	if (error == GL_INVALID_ENUM)
-	{
+// Takes an OpenGL error code as input and returns a human-readable error message
+std::string Graphics::ErrorString(GLenum error) {
+	// Check if the error code matches GL_INVALID_ENUM
+	if (error == GL_INVALID_ENUM) {
+		// If it does, return an error message explaining the issue
 		return "GL_INVALID_ENUM: An unacceptable value is specified for an enumerated argument.";
 	}
-
-	else if (error == GL_INVALID_VALUE)
-	{
+	// Check if the error code matches GL_INVALID_VALUE
+	else if (error == GL_INVALID_VALUE) {
+		// If it does, return an error message explaining the issue
 		return "GL_INVALID_VALUE: A numeric argument is out of range.";
 	}
-
-	else if (error == GL_INVALID_OPERATION)
-	{
+	// Check if the error code matches GL_INVALID_OPERATION
+	else if (error == GL_INVALID_OPERATION) {
+		// If it does, return an error message explaining the issue
 		return "GL_INVALID_OPERATION: The specified operation is not allowed in the current state.";
 	}
-
-	else if (error == GL_INVALID_FRAMEBUFFER_OPERATION)
-	{
+	// Check if the error code matches GL_INVALID_FRAMEBUFFER_OPERATION
+	else if (error == GL_INVALID_FRAMEBUFFER_OPERATION) {
+		// If it does, return an error message explaining the issue
 		return "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete.";
 	}
-
-	else if (error == GL_OUT_OF_MEMORY)
-	{
+	// Check if the error code matches GL_OUT_OF_MEMORY
+	else if (error == GL_OUT_OF_MEMORY) {
+		// If it does, return an error message explaining the issue
 		return "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.";
 	}
-	else
-	{
+	// If none of the above conditions are met, return "None" to indicate no OpenGL error was detected
+	else {
 		return "None";
 	}
 }

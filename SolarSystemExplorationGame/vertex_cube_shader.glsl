@@ -1,3 +1,5 @@
+// vertex_cube_shader.glsl
+
 #version 460
 
 layout (location = 0) in vec3 cubePosition;
