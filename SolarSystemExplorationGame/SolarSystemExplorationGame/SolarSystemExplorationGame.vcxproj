@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Asteroids.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CubemapTexture.cpp" />
     <ClCompile Include="engine.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Asteroids.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CubemapTexture.h" />
     <ClInclude Include="engine.h" />

@@ -15,6 +15,7 @@ using namespace std;
 #include "mesh.h"
 #include "CubemapTexture.h"
 #include "Light.h"
+#include "Asteroids.h"
 
 #define numVBOs 2;
 #define numIBs 2;
@@ -53,9 +54,11 @@ class Graphics
     GLint m_positionAttrib;
     GLint m_colorAttrib;
     GLint m_tcAttrib;
+    GLint m_instanceAttrib;
 
     GLint m_hasTexture;
     GLint m_hasNormal;
+    GLint m_isInstanced;
 
     GLint m_cubeProjectionMatrix;
     GLint m_cubeMVmatrix;
@@ -94,6 +97,8 @@ class Graphics
     Sphere* m_neptune;
 
     Sphere* m_moon;
+
+    Asteroids* m_asteroids;
 
     Mesh* m_mesh;
 

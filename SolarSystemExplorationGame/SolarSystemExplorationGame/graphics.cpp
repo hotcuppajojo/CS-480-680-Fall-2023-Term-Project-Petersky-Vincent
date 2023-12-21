@@ -219,6 +219,15 @@ bool Graphics::Initialize(int width, int height)
 		return false;
 	}
 
+	// Asteroid 1
+	m_asteroids = new Asteroids(48, "assets\\Asteroids\\asteroid.jpg", "IMG_TEXTURE", 1000);
+	//loadNorm = m_asteroids->loadTexture("asstes\\Asteroids\\asteroid_normal_2k.png", "NORMAL_TEXTURE");
+
+	if (!loadNorm) {
+		printf("failed to load asteroid normal texture\n");
+		return false;
+	}
+
 	// Set up lighting
 
 	std::vector<float> globalAmbLight = { 0.1f, 0.1f, 0.1f, 1.0f};
@@ -429,8 +438,6 @@ void Graphics::HierarchicalUpdate2(double dt) {
 	modelStack.pop(); 	// back to the sun coordinate
 
 	//modelStack.pop();	// empy stack
-
-
 }
 
 
@@ -591,6 +598,8 @@ void Graphics::Render()
 			glUniform1i(m_hasNormal, false);
 		}
 
+		glUniform1i(m_isInstanced, false);
+
 		m_mercury->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
 
@@ -637,6 +646,8 @@ void Graphics::Render()
 			glUniform1i(m_hasNormal, false);
 		}
 
+		glUniform1i(m_isInstanced, false);
+
 		m_venus->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
 
@@ -682,6 +693,8 @@ void Graphics::Render()
 		else {
 			glUniform1i(m_hasNormal, false);
 		}
+
+		glUniform1i(m_isInstanced, false);
 
 		m_earth->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
@@ -730,6 +743,8 @@ void Graphics::Render()
 			glUniform1i(m_hasNormal, false);
 		}
 
+		glUniform1i(m_isInstanced, false);
+
 		m_moon->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
 
@@ -775,6 +790,8 @@ void Graphics::Render()
 		else {
 			glUniform1i(m_hasNormal, false);
 		}
+
+		glUniform1i(m_isInstanced, false);
 
 		m_mars->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
@@ -822,6 +839,8 @@ void Graphics::Render()
 			glUniform1i(m_hasNormal, false);
 		}
 
+		glUniform1i(m_isInstanced, false);
+
 		m_jupiter->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
 
@@ -867,6 +886,8 @@ void Graphics::Render()
 		else {
 			glUniform1i(m_hasNormal, false);
 		}
+
+		glUniform1i(m_isInstanced, false);
 
 		m_saturn->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
@@ -914,6 +935,8 @@ void Graphics::Render()
 			glUniform1i(m_hasNormal, false);
 		}
 
+		glUniform1i(m_isInstanced, false);
+
 		m_uranus->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
 	}
 
@@ -960,7 +983,59 @@ void Graphics::Render()
 			glUniform1i(m_hasNormal, false);
 		}
 
+		glUniform1i(m_isInstanced, false);
+
 		m_neptune->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
+	}
+
+	// Render Instanced Asteroids
+
+	// Asteroid 1
+	if (m_asteroids != NULL) {
+		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_asteroids->GetModel()));
+		glUniformMatrix3fv(m_normMatrix, 1, GL_FALSE,
+			glm::value_ptr(glm::transpose(glm::inverse(glm::mat3(m_camera->GetView() * m_asteroids->GetModel())))));
+
+		//m_asteroid->setMaterialProperties({ 1.0, 1.0, 1.0, 1.0 }, { 1.0, 1.0, 1.0, 1.0 }, { 1.0, 1.0, 1.0, 1.0 }, 50.0);
+
+		glUniform4fv(mAmbLoc, 1, (m_asteroids->matAmbient.data()));
+		glUniform4fv(mDiffLoc, 1, (m_asteroids->matDiff.data()));
+		glUniform4fv(mSpecLoc, 1, (m_asteroids->matSpec.data()));
+		glUniform1f(mShineLoc, (m_asteroids->matShininess));
+
+		if (m_asteroids->hasTex) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m_asteroids->getTextureID("IMG_TEXTURE"));
+			GLuint sampler = m_shader->GetUniformLocation("sp");
+			if (sampler == INVALID_UNIFORM_LOCATION)
+			{
+				printf("Sampler Not found not found\n");
+			}
+			glUniform1i(sampler, 0);
+			glUniform1i(m_hasTexture, true);
+		}
+		else {
+			glUniform1i(m_hasTexture, false);
+		}
+
+		if (m_asteroids->hasNorm) {
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, m_asteroids->getTextureID("NORMAL_TEXTURE"));
+			GLuint sampler = m_shader->GetUniformLocation("sp1");
+			if (sampler == INVALID_UNIFORM_LOCATION)
+			{
+				printf("Sampler Not found not found\n");
+			}
+			glUniform1i(sampler, 0);
+			glUniform1i(m_hasNormal, true);
+		}
+		else {
+			glUniform1i(m_hasNormal, false);
+		}
+
+		glUniform1i(m_isInstanced, true);
+
+		m_asteroids->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_instanceAttrib, m_hasTexture, m_hasNormal);
 	}
 
 	// Get any errors from OpenGL
@@ -1031,6 +1106,14 @@ bool Graphics::collectShPrLocs() {
 		anyProblem = false;
 	}
 
+	// Locate the instance vertex attribute
+	m_instanceAttrib = m_shader->GetAttribLocation("v_instance");
+	if (m_instanceAttrib == -1)
+	{
+		printf("v_instance attribute not found\n");
+		anyProblem = false;
+	}
+
 	m_hasTexture = m_shader->GetUniformLocation("hasTexture");
 	if (m_hasTexture == INVALID_UNIFORM_LOCATION) {
 		printf("hasTexture uniform not found\n");
@@ -1040,6 +1123,12 @@ bool Graphics::collectShPrLocs() {
 	m_hasNormal = m_shader->GetUniformLocation("hasNormalMap");
 	if (m_hasNormal == INVALID_UNIFORM_LOCATION) {
 		printf("hasNormalMap uniform not found\n");
+		anyProblem = false;
+	}
+
+	m_isInstanced = m_shader->GetUniformLocation("isInstanced");
+	if (m_isInstanced == INVALID_UNIFORM_LOCATION) {
+		printf("isIstanced uniform not found\n");
 		anyProblem = false;
 	}
 

@@ -18,12 +18,14 @@ struct Material {
 layout (location = 0) in vec3 v_position;
 layout (location = 1) in vec3 v_color;
 layout (location = 2) in vec2 v_tc; 
+layout (location = 3) in mat4 v_instance;
 
 layout (binding=0) uniform sampler2D sp;
 layout (binding=1) uniform sampler2D sp1;
 
 uniform bool hasTexture;
 uniform bool hasNormalMap;
+uniform bool isInstanced;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
@@ -42,7 +44,12 @@ out vec2 tc;
 void main(void)
 {
     vec4 v = vec4(v_position, 1.0);
-    gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v;
+    
+    if(isInstanced)
+        gl_Position = (projectionMatrix * viewMatrix * v_instance) * v;
+    else
+        gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v;
+
     color = v_color;
     tc = v_tc;
 
