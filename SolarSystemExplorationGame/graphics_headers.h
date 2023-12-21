@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <assimp/Importer.hpp>
+#include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
@@ -21,6 +22,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/constants.hpp>
 
 #define INVALID_UNIFORM_LOCATION 0x7fffffff
 

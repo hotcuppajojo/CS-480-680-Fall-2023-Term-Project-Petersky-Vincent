@@ -63,7 +63,7 @@ bool Sphere::loadTexture(const char* fname, const char* textureType)
             hasTex = false;
 
         return hasTex;
-    } 
+    }
 
     return false;
 }
@@ -98,7 +98,7 @@ void Sphere::Render(GLint positionAttribLoc, GLint colorAttribLoc)
 
 void Sphere::Render(GLint posAttribLoc, GLint colAttribLoc, GLint tcAttribLoc, GLint hasTextureLoc)
 {
-   
+
     glBindVertexArray(vao);
     // Enable vertex attibute arrays for each vertex attrib
     glEnableVertexAttribArray(posAttribLoc);
@@ -112,8 +112,8 @@ void Sphere::Render(GLint posAttribLoc, GLint colAttribLoc, GLint tcAttribLoc, G
     glVertexAttribPointer(posAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
     glVertexAttribPointer(colAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
     glVertexAttribPointer(tcAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texcoord));
-    
-    
+
+
     // If has texture, set up texture unit(s): update here for texture rendering
     // If has texture, set up texture unit(s) Update here to activate and assign texture unit
     if (m_texture != NULL) {
@@ -124,8 +124,8 @@ void Sphere::Render(GLint posAttribLoc, GLint colAttribLoc, GLint tcAttribLoc, G
     else
         glUniform1i(hasTextureLoc, false);
 
-  
-    
+
+
     // Bind your Element Array
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
     // Render
@@ -135,12 +135,12 @@ void Sphere::Render(GLint posAttribLoc, GLint colAttribLoc, GLint tcAttribLoc, G
     glDisableVertexAttribArray(posAttribLoc);
     glDisableVertexAttribArray(colAttribLoc);
     glDisableVertexAttribArray(tcAttribLoc);
- 
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 }
 
-void Sphere::Render(GLint posAttribLoc, GLint colAttribLoc, GLint tcAttribLoc, 
+void Sphere::Render(GLint posAttribLoc, GLint colAttribLoc, GLint tcAttribLoc,
     GLint hasTextureLoc, GLint hasNormLoc)
 {
     glBindVertexArray(vao);
@@ -272,7 +272,7 @@ void Sphere::init(int prec) {
 }
 
 GLuint Sphere::getTextureID(const char* textureType)
-{ 
+{
     if (textureType == "NORMAL_TEXTURE")
         return m_normTexture->getTextureID();
     else if (textureType == "IMG_TEXTURE")
@@ -300,11 +300,11 @@ bool Sphere::setMaterialProperties()
     matDiff = diffuse;
     matSpec = spec;
     matShininess = shininess;
-    
+
     return true;
 }
 
-bool Sphere::setMaterialProperties(std::vector<float> ambient, std::vector<float> diffuse, 
+bool Sphere::setMaterialProperties(std::vector<float> ambient, std::vector<float> diffuse,
     std::vector<float> spec, float shininess)
 {
     matAmbient = ambient;

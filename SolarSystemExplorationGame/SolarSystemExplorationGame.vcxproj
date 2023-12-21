@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{1553d4fd-b20a-4017-884a-0a98759bd4ee}</ProjectGuid>
+    <ProjectGuid>{a796a6f8-4221-42a7-b67f-9e0b2adb419f}</ProjectGuid>
     <RootNamespace>SolarSystemExplorationGame</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -71,10 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>C:\Users\zephy\Documents\UNR\CS480\Code\OpenGLCodeLibraries\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\src\vcpkg\packages\assimp_x64-windows\include;C:\usr\local\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ExternalIncludePath>C:\Users\zephy\Documents\UNR\CS480\Code\OpenGLCodeLibraries\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\src\vcpkg\packages\assimp_x64-windows\include;C:\usr\local\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,8 +114,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\zephy\Documents\UNR\CS480\Code\OpenGLCodeLibraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glew32s.lib;glfw3.lib;soil2-debug.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\src\vcpkg\packages\assimp_x64-windows\lib;C:\usr\local\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\usr\local\lib\glfw3.lib;C:\usr\local\lib\glew32.lib;C:\usr\local\lib\soil2-debug.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -132,12 +132,30 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\zephy\Documents\UNR\CS480\Code\OpenGLCodeLibraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glew32s.lib;glfw3.lib;soil2-debug.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\usr\local\lib\glfw3.lib;C:\usr\local\lib\glew32.lib;C:\usr\local\lib\soil2-debug.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\src\vcpkg\packages\assimp_x64-windows\lib;C:\usr\local\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="cubemap.h" />
+    <ClInclude Include="CubemapTexture.h" />
+    <ClInclude Include="engine.h" />
+    <ClInclude Include="graphics.h" />
+    <ClInclude Include="graphics_headers.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="shader.h" />
+    <ClInclude Include="Skybox.h" />
+    <ClInclude Include="sphere.h" />
+    <ClInclude Include="starship.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="window.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="cubemap.cpp" />
     <ClCompile Include="CubemapTexture.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="graphics.cpp" />
@@ -147,22 +165,17 @@
     <ClCompile Include="object.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="starship.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="CubemapTexture.h" />
-    <ClInclude Include="engine.h" />
-    <ClInclude Include="graphics.h" />
-    <ClInclude Include="graphics_headers.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="mesh.h" />
-    <ClInclude Include="object.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="sphere.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="window.h" />
+    <None Include="fragment_cube_shader.glsl" />
+    <None Include="fragment_light_shader.glsl" />
+    <None Include="fragment_shader.glsl" />
+    <None Include="vertex_cube_shader.glsl" />
+    <None Include="vertex_light_shader.glsl" />
+    <None Include="vertex_shader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

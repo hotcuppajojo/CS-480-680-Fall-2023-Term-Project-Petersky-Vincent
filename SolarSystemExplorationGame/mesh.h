@@ -28,17 +28,17 @@ public:
     GLuint getTextureID() { return m_texture->getTextureID(); }
 
 
-
+protected:
+    glm::mat4 model;
+    Texture* m_texture;
 private:
     glm::vec3 pivotLocation;
-    glm::mat4 model;
+
     std::vector<Vertex> Vertices;
     std::vector<unsigned int> Indices;
+
     GLuint VB;
     GLuint IB;
-
-    Texture* m_texture;
-
     GLuint vao;
 
     float angle;

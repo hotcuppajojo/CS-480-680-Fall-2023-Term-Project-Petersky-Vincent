@@ -30,10 +30,10 @@ public:
     GLuint getTextureID(const char* textureType);
 
     bool loadTexture(const char* fname, const char* textureType);
-    
+
     bool setMaterialProperties();
     bool setMaterialProperties(std::vector<float> ambient, std::vector<float> diffuse, std::vector<float> spec, float shininess);
-    
+
     bool hasTex;
     bool hasNorm;
 
