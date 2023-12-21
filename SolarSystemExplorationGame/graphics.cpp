@@ -8,7 +8,7 @@ Graphics::Graphics() {
 
 Graphics::~Graphics()
 {
-
+	delete m_starship; // Clean up the starship
 }
 
 bool Graphics::Initialize(int width, int height)
@@ -231,6 +231,9 @@ bool Graphics::Initialize(int width, int height)
 	sunSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_lightManager->AddLight(m_camera->GetView(), sunPosition, sunAmbient, sunDiffuse, sunSpecular);
 
+	// Initialize starship after initializing other elements
+	m_starship = new Starship("/assets/SpaceShip-1/SpaceShip-1.obj", "/assets/SpaceShip-1/SpaceShip-1.png", "NORMAL_TEXTURE");
+
 	//enable depth testing
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -427,8 +430,6 @@ void Graphics::HierarchicalUpdate2(double dt) {
 	modelStack.pop(); 	// back to the sun coordinate
 
 	//modelStack.pop();	// empy stack
-
-
 }
 
 
@@ -920,6 +921,32 @@ void Graphics::Render()
 		}
 
 		m_neptune->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture, m_hasNormal);
+	}
+
+	// Rendering the starship
+	if (m_starship != NULL) {
+		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_starship->GetModel()));
+
+		// As the sun is a light source, we don't need its normal matrix for lighting calculations
+		glUniform1i(m_hasNormal, false);
+
+		if (m_starship->hasTex) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m_starship->getTextureID("IMG_TEXTURE"));
+			GLuint sampler = m_shader->GetUniformLocation("sampler");
+			if (sampler != INVALID_UNIFORM_LOCATION) {
+				glUniform1i(sampler, 0);
+				glUniform1i(m_hasTexture, true);
+			}
+			else {
+				printf("Sampler Not found\n");
+			}
+		}
+		else {
+			glUniform1i(m_hasTexture, false);
+		}
+		// Render the starship
+		m_starship->Render(m_positionAttrib, m_colorAttrib, m_tcAttrib, m_hasTexture);
 	}
 
 	// Get any errors from OpenGL

@@ -57,6 +57,9 @@
     <ClInclude Include="graphics_headers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="starship.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp">
@@ -96,6 +99,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="starship.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

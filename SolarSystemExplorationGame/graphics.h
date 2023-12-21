@@ -15,6 +15,7 @@ using namespace std;
 #include "mesh.h"
 #include "CubemapTexture.h"
 #include "Light.h"
+#include "starship.h"
 
 #define numVBOs 2;
 #define numIBs 2;
@@ -30,6 +31,7 @@ class Graphics
     void Render();
 
     Camera* getCamera() { return m_camera; }
+    Starship* getStarship() const { return m_starship; }
 
   private:
     std::string ErrorString(GLenum error);
@@ -108,6 +110,8 @@ class Graphics
     Light* m_sunlight;
 
     std::unique_ptr<Light> m_lightManager;
+
+    Starship* m_starship;
 
 };
 

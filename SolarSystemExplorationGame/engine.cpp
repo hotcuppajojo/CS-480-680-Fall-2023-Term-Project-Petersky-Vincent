@@ -53,10 +53,11 @@ void Engine::Run() {
 }
 
 void Engine::ProcessInput() {
-    // Handle ESC key
-    if (glfwGetKey(m_window->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    // Handle ESC key for closing the window
+    if (glfwGetKey(m_window->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(m_window->getWindow(), true);
-    
+    }
+
     // Toggle camera modes with spacebar
     static bool spaceKeyWasPressed = false;
     if (glfwGetKey(m_window->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
@@ -69,9 +70,35 @@ void Engine::ProcessInput() {
         spaceKeyWasPressed = false;
     }
 
-    // Handle camera movements
+    // Handle inputs based on the current camera mode
+    CameraMode currentMode = m_graphics->getCamera()->GetMode();
+    if (currentMode == CameraMode::Exploration) {
+        // In Exploration mode, update the starship position and orientation based on camera controls
+        UpdateStarshipFromCamera();
+    }
+    else {
+        // In Planetary Observation mode, enable free look-around
+        ProcessFreeLook();
+    }
+}
+
+void Engine::UpdateStarshipFromCamera() {
+    // Assuming you have a method to get the starship and its position and front vectors
+    Starship* starship = m_graphics->getStarship();
+    Camera* camera = m_graphics->getCamera();
+
+    if (starship && camera) {
+        glm::vec3 cameraPos = camera->GetPosition();
+        glm::vec3 cameraFront = camera->GetFront();
+
+        // Calculate the new position for the starship based on camera's position and front vector
+        glm::vec3 starshipPosition = cameraPos + cameraFront * fixedOffset;
+        starship->UpdateModelMatrix(starshipPosition, glm::vec3());  // Replace glm::vec3() with actual orientation if needed
+    }
+}
+
+void Engine::ProcessFreeLook() {
     double xpos, ypos;
-    glfwSetInputMode(m_window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwGetCursorPos(m_window->getWindow(), &xpos, &ypos);
 
     if (firstMouse) {
@@ -92,7 +119,6 @@ void Engine::ProcessInput() {
     yaw += xoffset;
     pitch += yoffset;
 
-    // Constraining the pitch values
     if (pitch > 89.0f) pitch = 89.0f;
     if (pitch < -89.0f) pitch = -89.0f;
 
@@ -102,21 +128,7 @@ void Engine::ProcessInput() {
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     glm::vec3 cameraFront = glm::normalize(front);
 
-    // Update camera view
     m_graphics->getCamera()->UpdateView(cameraFront);
-    m_graphics->getCamera()->Zoom(fov);
-
-    // Handle camera position changes
-    if (glfwGetKey(m_window->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
-        m_graphics->getCamera()->MoveHorizontal(0.5f);
-    if (glfwGetKey(m_window->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
-        m_graphics->getCamera()->MoveHorizontal(-0.5f);
-    if (glfwGetKey(m_window->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
-        m_graphics->getCamera()->MoveVertical(0.5f);
-    if (glfwGetKey(m_window->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
-        m_graphics->getCamera()->MoveVertical(-0.5f);
-
-    // Add additional input processing here as needed
 }
 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {

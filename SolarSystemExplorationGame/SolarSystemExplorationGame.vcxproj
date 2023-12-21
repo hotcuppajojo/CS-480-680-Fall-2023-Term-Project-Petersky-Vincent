@@ -149,6 +149,7 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="starship.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
@@ -164,6 +165,7 @@
     <ClCompile Include="object.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="starship.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>

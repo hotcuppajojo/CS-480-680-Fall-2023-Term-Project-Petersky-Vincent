@@ -5,14 +5,14 @@
 
 enum class CameraMode { Exploration, PlanetaryObservation };
 
-class Camera
-{
+class Camera {
 public:
     Camera();
     ~Camera();
     bool Initialize(int w, int h);
     glm::mat4 GetProjection();
     glm::mat4 GetView();
+    CameraMode GetMode() { return mode; };
 
     void UpdateView(glm::vec3 cameraUpdate);
     void MoveVertical(float speed);
@@ -20,6 +20,10 @@ public:
     void Zoom(float fov);
     void ToggleMode();
     void ResetToOriginal();
+
+    // New accessor methods
+    glm::vec3 GetPosition() const { return cameraPos; }
+    glm::vec3 GetFront() const { return cameraFront; }
 
 private:
     void UpdateProjection(int w, int h);
@@ -38,4 +42,5 @@ private:
     glm::vec3 originalPosObservation;
     glm::vec3 originalFrontObservation;
 };
+
 #endif /* CAMERA_H */
